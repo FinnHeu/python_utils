@@ -6,6 +6,7 @@ import cmocean.cm as cmo
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
+import numpy as np
 
 
 def plot_background(ax, extent="BS", land=True, coastline=True):
