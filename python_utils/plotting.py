@@ -70,7 +70,7 @@ def plot_background(ax, extent="BS", land=True, coastline=True):
         y_inline=False,
         zorder=20,
     )
-        ax.set_extent([20, 60, 70, 80], crs=ccrs.PlateCarree())
+        ax.set_extent([22.5, 62.5, 67.5, 82.5], crs=ccrs.PlateCarree())
 
         gl.xlocator = mticker.FixedLocator(
             [20, 40, 60],
