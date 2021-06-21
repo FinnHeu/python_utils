@@ -51,7 +51,7 @@ def plot_background(ax, extent="BS", land=True, coastline=True):
         ax.set_extent([0, 90, 66, 90], crs=ccrs.PlateCarree())
 
         gl.xlocator = mticker.FixedLocator(
-            [20, 40, 60, 80],
+            [20, 30, 40, 50, 60, 80],
         )
         gl.ylocator = mticker.FixedLocator(np.arange(70, 90, 5))
         gl.xformatter = LONGITUDE_FORMATTER
@@ -70,12 +70,12 @@ def plot_background(ax, extent="BS", land=True, coastline=True):
         y_inline=False,
         zorder=20,
     )
-        ax.set_extent([22.5, 62.5, 67.5, 82.5], crs=ccrs.PlateCarree())
+        ax.set_extent([17.5, 62.5, 67.5, 82.5], crs=ccrs.PlateCarree())
 
         gl.xlocator = mticker.FixedLocator(
             [20, 40, 60],
         )
-        gl.ylocator = mticker.FixedLocator(np.arange(70, 80, 2.5))
+        gl.ylocator = mticker.FixedLocator(np.arange(70, 82.5, 2.5))
         gl.xformatter = LONGITUDE_FORMATTER
         gl.yformatter = LATITUDE_FORMATTER
 
