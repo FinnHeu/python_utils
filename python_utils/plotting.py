@@ -9,7 +9,7 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import numpy as np
 
 
-def plot_background(ax, extent="BS", land=True, coastline=True):
+def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='lightgrey'):
 
     '''
     plot background.py
@@ -140,7 +140,7 @@ def plot_background(ax, extent="BS", land=True, coastline=True):
 
 
     if land:
-        ax.add_feature(cfeature.LAND, zorder=10)
+        ax.add_feature(cfeature.LAND, zorder=10, color=landcolor)
     if coastline:
         ax.add_feature(cfeature.COASTLINE, zorder=10)
 
