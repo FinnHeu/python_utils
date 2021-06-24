@@ -129,13 +129,15 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
 
         for slp_name in slp_names:
             if (data_name == slp_name):
-                print(data_name, slp_name)
                 ds = ds.rename({data_name: slp})
 
 
     # Covert 0-360°E to -180 - 180°E
     if lon180:
         ds['lon'] = ds.lon.where(ds.lon < 180, ds.lon - 360)
+
+    # Rearange dimensions
+    ds = ds.transpose('time','lon','lat')
 
     return ds
 
@@ -177,3 +179,65 @@ def select_winter_month(ds, month=[12,1,2,3,4,5], mean=False):
         ds = ds.mean(dim='time')
 
     return ds
+
+
+    def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','2018'), winter_only=False, scale=1):
+
+    '''
+    anomaly_two_periods.py
+
+    Computes the difference between two reference periods in one dataset.
+    Computation: period1 - period2
+
+    Inputs
+    ------
+    src_path (str)
+        path to dataset
+    period1, period2 (tuple)
+        tuples with start and end of each period
+    winter_only (bool, list)
+        if True only DJFMAM are considered, if list month in list are considered
+    scale (int, float)
+        scale factor (default=1)
+
+
+    Returns
+    -------
+    delta_ds
+        dataset containing the subtracted periods
+
+    '''
+
+    # Open file
+    ds = xr.open_dataset(src_path).load()
+
+    # Apply cf conventions
+    ds = dataset_to_cfconvention(ds)
+
+    # Select month
+    if winter_only:
+        if isinstance(winter_only, bool):
+            ds = select_winter_month(ds)
+        elif isinstance(winter_only, list):
+            ds = select_winter_month(ds, month=winter_only)
+
+
+    # Select two time periods
+    ds_p1 = ds.sel(time=slice(period1[0], period1[1]))
+    ds_p2 = ds.sel(time=slice(period2[0], period2[1]))
+
+    print('First period: ' + str(ds_p1.time[0].values), ' to ' + str(ds_p1.time[-1].values))
+    print('First period: ' + str(ds_p2.time[0].values), ' to ' + str(ds_p2.time[-1].values))
+
+    # time mean
+    ds_p1 = ds_p1.mean(dim='time')
+    ds_p2 = ds_p2.mean(dim='time')
+
+    # Compute the difference of the mean fields and scale to mBar
+    ds_delta = (ds_p1 - ds_p2) * scale
+
+    return ds_delta
+
+
+
+    
