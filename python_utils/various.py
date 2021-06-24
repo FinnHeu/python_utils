@@ -138,3 +138,42 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
         ds['lon'] = ds.lon.where(ds.lon < 180, ds.lon - 360)
 
     return ds
+
+
+def select_winter_month(ds, month=[12,1,2,3,4,5], mean=False):
+
+    '''
+    select_winter_month.py
+
+    selects winter month from an xarray dataset
+
+    Inputs
+    ------
+    ds (xr.dataset)
+        dataset to process
+    month (list)
+        months to select
+    mean (bool)
+        apply time mean
+
+    '''
+
+    # Apply cf conventions if nesseccary
+    if not 'time' in list(ds.keys()):
+        ds = dataset_to_cfconvention(ds)
+
+    groups = ds.groupby('time.month').groups
+
+    winter_inds = list()
+
+    for i in range(len(month)):
+        winter_inds += groups[month[i]]
+
+    winter_inds = np.sort(winter_inds)
+
+    ds = ds.isel(time=winter_inds)
+
+    if mean:
+        ds = ds.mean(dim='time')
+
+    return ds
