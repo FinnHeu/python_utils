@@ -181,7 +181,7 @@ def select_winter_month(ds, month=[12,1,2,3,4,5], mean=False):
     return ds
 
 
-    def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','2018'), winter_only=False, scale=1):
+def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','2018'), winter_only=False, scale=1):
 
     '''
     anomaly_two_periods.py
@@ -237,7 +237,3 @@ def select_winter_month(ds, month=[12,1,2,3,4,5], mean=False):
     ds_delta = (ds_p1 - ds_p2) * scale
 
     return ds_delta
-
-
-
-    
