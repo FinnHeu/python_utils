@@ -1,4 +1,5 @@
 import numpy as np
+import xarray as xr
 
 def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plane', f_central=None, slp=False):
 
@@ -69,3 +70,71 @@ def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plan
 
 
     return u, v
+
+
+def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', slp='slp', temp='temp', salt='salt', lon180=True):
+
+    '''
+    dataset_to_cfconvention.py
+
+    Renames the coordinates of an xarray dataset to lon, lat, time, slp, temp (according to cf conventions)
+
+    Inputs
+    ------
+    ds (xr.dataset, xr.datarray)
+        dataset to process
+    varnames (str)
+        new names of various coordinates and variables
+    lon180 (bool)
+        if True the logitude will be changes to -180E to 180E
+
+
+
+    Returns
+    -------
+    ds (xr.dataset, xr.datarray)
+        dataset with renamed coordinates/ variables
+
+    '''
+
+    # Rename Coordinates
+
+    time_names = ['TIME','Time']
+    lon_names = ['LONGITUDE', 'Longitude', 'LON', 'Lon', 'LONS', 'lons']
+    lat_names = ['LATITUDE', 'Latitude', 'LAT', 'Lat', 'LATS', 'lats']
+
+    coords = list(ds.coords)
+    for coord_name in coords:
+
+        for time_name in time_names:
+            if (coord_name == time_name):
+                ds = ds.rename({coord_name: time})
+
+        for lon_name in lon_names:
+            if (coord_name == lon_name):
+                ds = ds.rename({coord_name: longitude})
+
+        for lat_name in lat_names:
+            if (coord_name == lat_name):
+                ds = ds.rename({coord_name: latitude})
+
+
+    # Rename Data variables
+
+    slp_names = ['SLP', 'Slp', 'PSL', 'psl', 'Psl', 'sea_level_pressure', 'Sea_Level_Pressure']
+
+    data = list(ds.keys())
+
+    for data_name in data:
+
+        for slp_name in slp_names:
+            if (data_name == slp_name):
+                print(data_name, slp_name)
+                ds = ds.rename({data_name: slp})
+
+
+    # Covert 0-360°E to -180 - 180°E
+    if lon180:
+        ds['lon'] = ds.lon.where(ds.lon < 180, ds.lon - 360)
+
+    return ds
