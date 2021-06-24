@@ -137,7 +137,7 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
         ds['lon'] = ds.lon.where(ds.lon < 180, ds.lon - 360)
 
     # Rearange dimensions
-    ds = ds.transpose('time','lon','lat')
+    #ds = ds.transpose('time','lon','lat')
 
     return ds
 
