@@ -234,6 +234,6 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
     ds_p2 = ds_p2.mean(dim='time')
 
     # Compute the difference of the mean fields and scale to mBar
-    ds_delta = (ds_p1 - ds_p2) * scale
+    ds_delta = (ds_p2 - ds_p1) * scale
 
     return ds_delta
