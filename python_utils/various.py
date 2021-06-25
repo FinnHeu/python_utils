@@ -182,7 +182,7 @@ def select_winter_month(ds, month=[12,1,2,3,4,5], mean=False):
     return ds
 
 
-def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','2018'), param='slp', winter_only=False, scale=1):
+def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','2018'), param='slp', winter_only=False, lon180=False, scale=1):
 
     '''
     anomaly_two_periods.py
@@ -213,7 +213,7 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
     ds = xr.open_dataset(src_path).load()
 
     # Apply cf conventions
-    ds = dataset_to_cfconvention(ds)
+    ds = dataset_to_cfconvention(ds, lon180=lon180)
 
     # Select month
     if winter_only:
