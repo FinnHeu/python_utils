@@ -134,7 +134,8 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
 
     # Covert 0-360°E to -180 - 180°E
     if lon180:
-        ds['lon'] = ds.lon.where(ds.lon < 180, ds.lon - 360)
+        ds.coords['lon'] = (ds.coords['lon'] + 180) % 360 - 180
+        ds = ds.sortby(ds.lon)
 
     # Rearange dimensions
     #ds = ds.transpose('time','lon','lat')
