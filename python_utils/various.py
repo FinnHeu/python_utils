@@ -241,80 +241,80 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
 
 
     def create_wind_anomaly_netCDF(ds, lon_range, lat_range, lon360=True, savepath=None):
-    '''
-    Create_wind_anomaly_netCDF.py
+        '''
+        Create_wind_anomaly_netCDF.py
 
-    Creates global netCDF files with wind anomalies for use in fesom2.1
+        Creates global netCDF files with wind anomalies for use in fesom2.1
 
-    Inputs
-    ------
-    ds, xr.dataarray
-        slp data
-    lon_range, tuple
-        (min_lon, max_lon)
-    lat_range, tuple
-        (min_lat, max_lat)
-    lon360, bool
-        convert longitudes to 0-360° range (default is True)
-    savepath, string
-        path to save the netCDF file
+        Inputs
+        ------
+        ds, xr.dataarray
+            slp data
+        lon_range, tuple
+            (min_lon, max_lon)
+        lat_range, tuple
+            (min_lat, max_lat)
+        lon360, bool
+            convert longitudes to 0-360° range (default is True)
+        savepath, string
+            path to save the netCDF file
 
-    Returns
-    -------
-     ds_new, xr.dataset
-         global dataset with wind anomalies
+        Returns
+        -------
+         ds_new, xr.dataset
+             global dataset with wind anomalies
 
-    '''
+        '''
 
-    # Find the nearest values to the given ranges
-    lon_min = ds.lon.sel(lon=lon_range[0], method='nearest').values
-    lon_max = ds.lon.sel(lon=lon_range[-1], method='nearest').values
-    lat_min = ds.lat.sel(lat=lat_range[0], method='nearest').values
-    lat_max = ds.lat.sel(lat=lat_range[-1], method='nearest').values
+        # Find the nearest values to the given ranges
+        lon_min = ds.lon.sel(lon=lon_range[0], method='nearest').values
+        lon_max = ds.lon.sel(lon=lon_range[-1], method='nearest').values
+        lat_min = ds.lat.sel(lat=lat_range[0], method='nearest').values
+        lat_max = ds.lat.sel(lat=lat_range[-1], method='nearest').values
 
-    # Compute geostrophic wind
-    slp = ds.values
-    lon = ds.lon.values
-    lat = ds.lat.values
+        # Compute geostrophic wind
+        slp = ds.values
+        lon = ds.lon.values
+        lat = ds.lat.values
 
-    u, v = pyu.pressure_to_geowind(slp, lon, lat, f='f-plane', f_central=75, slp=True)
+        u, v = pyu.pressure_to_geowind(slp, lon, lat, f='f-plane', f_central=75, slp=True)
 
 
-    # Set all values outside range to 0
-    LON, LAT = np.meshgrid(lon,lat)
+        # Set all values outside range to 0
+        LON, LAT = np.meshgrid(lon,lat)
 
-    u_anom = np.where((LON >= lon_min) & (LON <= lon_max) & (LAT >= lat_min) & (LAT <= lat_max), u, 0)
-    v_anom = np.where((LON >= lon_min) & (LON <= lon_max) & (LAT >= lat_min) & (LAT <= lat_max), v, 0)
+        u_anom = np.where((LON >= lon_min) & (LON <= lon_max) & (LAT >= lat_min) & (LAT <= lat_max), u, 0)
+        v_anom = np.where((LON >= lon_min) & (LON <= lon_max) & (LAT >= lat_min) & (LAT <= lat_max), v, 0)
 
-    ds_new = xr.Dataset({
-    'uanom': xr.DataArray(
-                data   = u_anom,   # enter data here
-                dims   = ['lat', 'lon'],
-                coords = {'lat': lat, 'lon': lon},
-                attrs  = {
-                    'units'     : 'm/s',
-                    'description': 'gesostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
-                    }
-                ),
-     'vanom': xr.DataArray(
-                data   = v_anom,   # enter data here
-                dims   = ['lat', 'lon'],
-                coords = {'lat': lat, 'lon': lon},
-                attrs  = {
-                    'units'     : 'm/s',
-                    'description': 'gesostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
-                    }
-                ),
-    })
+        ds_new = xr.Dataset({
+        'uanom': xr.DataArray(
+                    data   = u_anom,   # enter data here
+                    dims   = ['lat', 'lon'],
+                    coords = {'lat': lat, 'lon': lon},
+                    attrs  = {
+                        'units'     : 'm/s',
+                        'description': 'gesostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
+                        }
+                    ),
+         'vanom': xr.DataArray(
+                    data   = v_anom,   # enter data here
+                    dims   = ['lat', 'lon'],
+                    coords = {'lat': lat, 'lon': lon},
+                    attrs  = {
+                        'units'     : 'm/s',
+                        'description': 'gesostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
+                        }
+                    ),
+        })
 
-    if lon360:
-        ds_new.coords['lon'] = np.where(ds_new.lon.values < 0, ds_new.lon.values + 360, ds_new.lon.values)
-        ds_new = ds_new.sortby(ds_new.lon)
+        if lon360:
+            ds_new.coords['lon'] = np.where(ds_new.lon.values < 0, ds_new.lon.values + 360, ds_new.lon.values)
+            ds_new = ds_new.sortby(ds_new.lon)
 
-    # Add Time coordinate
-    ds_new = ds_new.assign_coords({'time': 1}).expand_dims('time')
+        # Add Time coordinate
+        ds_new = ds_new.assign_coords({'time': 1}).expand_dims('time')
 
-    if savepath:
-        ds.to_netcdf(savepath)
+        if savepath:
+            ds.to_netcdf(savepath)
 
     return ds_new
