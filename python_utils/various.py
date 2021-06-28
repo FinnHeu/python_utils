@@ -317,4 +317,4 @@ def create_wind_anomaly_netCDF(ds, lon_range, lat_range, lon360=True, savepath=N
     if savepath:
         ds.to_netcdf(savepath)
 
-return ds_new
+    return ds_new
