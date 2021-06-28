@@ -277,7 +277,7 @@ def create_wind_anomaly_netCDF(ds, lon_range, lat_range, lon360=True, savepath=N
     lon = ds.lon.values
     lat = ds.lat.values
 
-    u, v = pyu.pressure_to_geowind(slp, lon, lat, f='f-plane', f_central=75, slp=True)
+    u, v = pressure_to_geowind(slp, lon, lat, f='f-plane', f_central=75, slp=True)
 
 
     # Set all values outside range to 0
