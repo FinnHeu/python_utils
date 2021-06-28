@@ -100,8 +100,8 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
     # Rename Coordinates
 
     time_names = ['TIME','Time']
-    lon_names = ['LONGITUDE', 'Longitude', 'LON', 'Lon', 'LONS', 'lons']
-    lat_names = ['LATITUDE', 'Latitude', 'LAT', 'Lat', 'LATS', 'lats']
+    lon_names = ['LONGITUDE', 'Longitude', 'longitude', 'LON', 'Lon', 'LONS', 'lons', 'Lons']
+    lat_names = ['LATITUDE', 'Latitude', 'latitude', 'LAT', 'Lat', 'LATS', 'lats', 'Lats']
 
     coords = list(ds.coords)
     for coord_name in coords:
