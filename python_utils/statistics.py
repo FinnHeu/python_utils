@@ -77,4 +77,4 @@ def CIs_regression(x, y):
     ci_l = nom - 1.96 * std
     ci_u = nom + 1.96 * std
 
-    return px, ci_l, ci_u
+    return px, nom, ci_l, ci_u
