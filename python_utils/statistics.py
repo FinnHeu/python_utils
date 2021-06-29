@@ -63,7 +63,7 @@ def CIs_regression(x, y):
     print('b: ' + str(b))
 
     # plot data
-    plt.scatter(x, y, s=3, label='Data')
+    #plt.scatter(x, y, s=3, label='Data')
 
     # calculate regression confidence interval
     px = np.linspace(min(x), max(x), 100)
