@@ -32,7 +32,7 @@ def predband(x, xd, yd, p, func, conf=.95):
 
     return lpb, upb
 
-def CIs_regression(x, y)
+def CIs_regression(x, y:
 
     ''''''
 
