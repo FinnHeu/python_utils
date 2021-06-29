@@ -2,3 +2,4 @@
 
 from .plotting import *
 from .various import *
+from.statistics import *
