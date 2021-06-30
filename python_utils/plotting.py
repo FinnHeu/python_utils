@@ -9,7 +9,7 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import numpy as np
 
 
-def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='lightgrey'):
+def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='lightgrey', tick_labels=True):
 
     '''
     plot background.py
@@ -147,5 +147,10 @@ def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='light
     gl.xlabel_style = {"size": 12, "rotation": 0}
     gl.ylabel_style = {"size": 12, "rotation": 0}
 
+    if not tick_labels:
+        gl.xlabels_top = False
+        gl.ylabels_left = False
+        gl.xlabels_bottom = False
+        gl.ylabels_right = False
 
     return ax
