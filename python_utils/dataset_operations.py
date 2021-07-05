@@ -72,7 +72,7 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
 
     # Rename Data variables
 
-    temp_names = ['Temp', 'TEMP', 'tas', 'T_2_MOD', 'temperature', 'Temperature', 'TEMPERATURE']
+    temp_names = ['Temp', 'TEMP', 'tas', 'T_2_MOD','T_10_MOD', 'temperature', 'Temperature', 'TEMPERATURE']
 
     data = list(ds.keys())
 
