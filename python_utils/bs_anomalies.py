@@ -107,7 +107,7 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
     ds = xr.open_dataset(src_path).load()
 
     # Apply cf conventions
-    ds = dataset_to_cfconvention(ds, lon180=lon180)
+    ds = dataset_operations.dataset_to_cfconvention(ds, lon180=lon180)
 
     # Select month
     if winter_only:
