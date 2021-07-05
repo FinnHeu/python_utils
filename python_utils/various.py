@@ -137,6 +137,24 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
         ds.coords['lon'] = (ds.coords['lon'] + 180) % 360 - 180
         ds = ds.sortby(ds.lon)
 
+    # Rename Data variables
+
+    temp_names = ['Temp', 'TEMP', 'tas', 'T_2_MOD', 'temperature', 'Temperature', 'TEMPERATURE']
+
+    data = list(ds.keys())
+
+    for data_name in data:
+
+        for temp_name in temp_names:
+            if (data_name == temp_name):
+                ds = ds.rename({data_name: temp})
+
+
+    # Covert 0-360°E to -180 - 180°E
+    if lon180:
+        ds.coords['lon'] = (ds.coords['lon'] + 180) % 360 - 180
+        ds = ds.sortby(ds.lon)
+
     # Rearange dimensions
     #ds = ds.transpose('time','lon','lat')
 
@@ -188,7 +206,7 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
     anomaly_two_periods.py
 
     Computes the difference between two reference periods in one dataset.
-    Computation: period1 - period2
+    Computation: period2 - period1
 
     Inputs
     ------
@@ -204,6 +222,10 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
 
     Returns
     -------
+    ds_p1
+
+    ds_p2
+
     delta_ds
         dataset containing the subtracted periods
 
@@ -234,7 +256,7 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
     ds_p1 = ds_p1.mean(dim='time')
     ds_p2 = ds_p2.mean(dim='time')
 
-    # Compute the difference of the mean fields and scale to mBar
+    # Compute the difference of the mean fields and scale
     ds_delta = (ds_p2[param] - ds_p1[param]) * scale
 
     return ds_p1, ds_p2, ds_delta
