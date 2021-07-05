@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from python_utils.dataset_operations import *
 
 def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plane', f_central=None, slp=False):
 
@@ -107,7 +108,7 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
     ds = xr.open_dataset(src_path).load()
 
     # Apply cf conventions
-    ds = dataset_operations.dataset_to_cfconvention(ds, lon180=lon180)
+    ds = dataset_to_cfconvention(ds, lon180=lon180)
 
     # Select month
     if winter_only:
