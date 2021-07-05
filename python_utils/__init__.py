@@ -1,5 +1,6 @@
 """Top-level package for python_utils"""
 
 from .plotting import *
-from .various import *
-from.statistics import *
+from .dataset_operations import *
+from .statistics import *
+from .bs_anomalies import *
