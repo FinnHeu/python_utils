@@ -109,6 +109,9 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
         # Open file
         ds = xr.open_dataset(src).load()
 
+    elif isinstance(src, list) | isinstance(src, np.ndarray)
+        ds = xr.open_mfdataset(src, combine='by_coords', chunks={'nod2': 1e4}).load()
+
     elif isinstance(src, xr.DataArray):
         ds = src.to_dataset().load()
 
@@ -132,7 +135,7 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
     ds_p2 = ds.sel(time=slice(period2[0], period2[1]))
 
     print('First period: ' + str(ds_p1.time[0].values), ' to ' + str(ds_p1.time[-1].values))
-    print('First period: ' + str(ds_p2.time[0].values), ' to ' + str(ds_p2.time[-1].values))
+    print('Second period: ' + str(ds_p2.time[0].values), ' to ' + str(ds_p2.time[-1].values))
 
     # time mean
     ds_p1 = ds_p1.mean(dim='time')
