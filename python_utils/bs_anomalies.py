@@ -109,7 +109,7 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
         # Open file
         ds = xr.open_dataset(src).load()
 
-    elif isinstance(src, list) | isinstance(src, np.ndarray)
+    elif isinstance(src, list) | isinstance(src, np.ndarray):
         ds = xr.open_mfdataset(src, combine='by_coords', chunks={'nod2': 1e4}).load()
 
     elif isinstance(src, xr.DataArray):
