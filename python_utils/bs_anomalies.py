@@ -110,10 +110,10 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
         ds = xr.open_dataset(src).load()
 
     elif isinstance(src, xr.DataArray):
-        ds = src.to_dataset()
+        ds = src.to_dataset().load()
 
     elif isinstance(src, xr.Dataset):
-        pass
+        ds = src.load()
 
     # Apply cf conventions
     ds = dataset_to_cfconvention(ds, lon180=lon180)
