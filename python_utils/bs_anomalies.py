@@ -73,7 +73,7 @@ def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plan
     return u, v
 
 
-def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'), param='slp', winter_only=False, lon180=False, scale=1):
+def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'), param='slp', winter_only=False, lon180=False, fesom_output=False, scale=1):
 
     '''
     anomaly_two_periods.py
@@ -116,7 +116,8 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
         ds = src.load()
 
     # Apply cf conventions
-    ds = dataset_to_cfconvention(ds, lon180=lon180)
+    if not fesom_output:
+        ds = dataset_to_cfconvention(ds, lon180=lon180)
 
     # Select month
     if winter_only:
