@@ -113,7 +113,7 @@ def select_winter_month(ds, month=[12,1,2,3,4,5], mean=False):
     '''
 
     # Apply cf conventions if nesseccary
-    if not 'time' in list(ds.keys()):
+    if not 'time' in list(ds.coords()):
         ds = dataset_to_cfconvention(ds)
 
     groups = ds.groupby('time.month').groups
