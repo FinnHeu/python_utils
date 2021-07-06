@@ -107,16 +107,16 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
     # Handle different input cases for src_path
     if isinstance(src, str):
         # Open file
-        ds = xr.open_dataset(src).load()
+        ds = xr.open_dataset(src)#.load()
 
     elif isinstance(src, list) | isinstance(src, np.ndarray):
-        ds = xr.open_mfdataset(src, combine='by_coords', chunks={'nod2': 1e4}).load()
+        ds = xr.open_mfdataset(src, combine='by_coords', chunks={'nod2': 1e4})#.load()
 
     elif isinstance(src, xr.DataArray):
-        ds = src.to_dataset().load()
+        ds = src.to_dataset()#.load()
 
     elif isinstance(src, xr.Dataset):
-        ds = src.load()
+        ds = src#.load()
 
     # Apply cf conventions
     if not fesom_output:
@@ -138,11 +138,12 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
     print('Second period: ' + str(ds_p2.time[0].values), ' to ' + str(ds_p2.time[-1].values))
 
     # time mean
-    ds_p1 = ds_p1.mean(dim='time')
-    ds_p2 = ds_p2.mean(dim='time')
+    ds_p1 = ds_p1.mean(dim='time').compute()
+    ds_p2 = ds_p2.mean(dim='time').compute()
 
     # Compute the difference of the mean fields and scale
     ds_delta = (ds_p2[param] - ds_p1[param]) * scale
+    ds_delta.compute()
 
     return ds_p1, ds_p2, ds_delta
 
