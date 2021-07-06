@@ -73,7 +73,7 @@ def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plan
     return u, v
 
 
-def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','2018'), param='slp', winter_only=False, lon180=False, scale=1):
+def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'), param='slp', winter_only=False, lon180=False, scale=1):
 
     '''
     anomaly_two_periods.py
@@ -83,8 +83,8 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
 
     Inputs
     ------
-    src_path (str)
-        path to dataset
+    src (str or xr.DataArray or xr.Dataset)
+        path to dataset or dataset as xr.DataArray / xr.Dataset
     period1, period2 (tuple)
         tuples with start and end of each period
     winter_only (bool, list)
@@ -104,8 +104,16 @@ def mean_diff_two_periods(src_path, period1=('1979','1999'), period2=('2000','20
 
     '''
 
-    # Open file
-    ds = xr.open_dataset(src_path).load()
+    # Handle different input cases for src_path
+    if isinstance(src, str)
+        # Open file
+        ds = xr.open_dataset(src).load()
+
+    elif isinstance(src, xr.DataArray):
+        ds = src.to_dataset()
+
+    elif isinstance(src, xr.Dataset):
+        pass
 
     # Apply cf conventions
     ds = dataset_to_cfconvention(ds, lon180=lon180)
