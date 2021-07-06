@@ -105,7 +105,7 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
     '''
 
     # Handle different input cases for src_path
-    if isinstance(src, str)
+    if isinstance(src, str):
         # Open file
         ds = xr.open_dataset(src).load()
 
