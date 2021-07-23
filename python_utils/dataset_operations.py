@@ -38,15 +38,15 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
 
         for time_name in time_names:
             if (coord_name == time_name):
-                ds = ds.rename({coord_name: time})
+                ds = ds.rename({coord_name: 'time'})
 
         for lon_name in lon_names:
             if (coord_name == lon_name):
-                ds = ds.rename({coord_name: longitude})
+                ds = ds.rename({coord_name: 'longitude'})
 
         for lat_name in lat_names:
             if (coord_name == lat_name):
-                ds = ds.rename({coord_name: latitude})
+                ds = ds.rename({coord_name: 'latitude'})
 
     # Rename Data variables
 
@@ -59,7 +59,7 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
 
         for slp_name in slp_names:
             if (data_name == slp_name):
-                ds = ds.rename({data_name: slp})
+                ds = ds.rename({data_name: 'slp'})
 
     # Covert 0-360°E to -180 - 180°E
     if lon180:
