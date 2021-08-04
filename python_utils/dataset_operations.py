@@ -59,6 +59,7 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
 
         for slp_name in slp_names:
             if (data_name == slp_name):
+                print('Renamed: ', slp_name, ' to: slp')
                 ds = ds.rename({data_name: 'slp'})
 
     # Covert 0-360°E to -180 - 180°E

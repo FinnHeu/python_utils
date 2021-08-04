@@ -2,8 +2,8 @@ import numpy as np
 import xarray as xr
 from python_utils.dataset_operations import *
 
-def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plane', f_central=None, slp=False):
 
+def pressure_to_geowind(pressure, lon, lat, rho=1.225, Re=6371000, f='f-plane', f_central=None, slp=False):
     '''
     pressure_to_geowind.py
 
@@ -33,13 +33,17 @@ def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plan
     dpdx = np.ones_like(pressure) * np.nan
     dpdy = np.ones_like(pressure) * np.nan
 
-    for i in range(len(lat)): dpdx[i,:] = np.gradient(pressure[i,:], dist_x[i])
-    for i in range(len(lon)): dpdy[:,i] = np.gradient(pressure[:,i], np.mean(dist_y))
+    for i in range(len(lat)):
+        dpdx[i, :] = np.gradient(pressure[i, :], dist_x[i])
+    for i in range(len(lon)):
+        dpdy[:, i] = np.gradient(pressure[:, i], np.mean(dist_y))
 
     # Compute Coriolis parameter
     if f == 'f-plane':
-        if f_central == None: f_c = 2 * 7.2921e-5 * np.sin(np.median(lat))
-        else: f_c = 2 * 7.2921e-5 * np.sin(np.median(f_central))
+        if f_central == None:
+            f_c = 2 * 7.2921e-5 * np.sin(np.median(lat))
+        else:
+            f_c = 2 * 7.2921e-5 * np.sin(np.median(f_central))
 
         f_c = np.ones_like(dpdx) * f_c
 
@@ -57,24 +61,23 @@ def pressure_to_geowind(pressure, lon, lat, rho = 1.225, Re = 6371000, f='f-plan
         scale = .7
         angle = 30
 
-        rot_mat = np.array([[np.cos(angle*rad), -np.sin(angle*rad)],[np.sin(angle*rad), np.cos(angle*rad)]])
+        rot_mat = np.array([[np.cos(angle*rad), -np.sin(angle*rad)],
+                           [np.sin(angle*rad), np.cos(angle*rad)]])
 
         a = u.shape
         for i in range(a[0]):
             for j in range(a[1]):
 
-                vec = np.array([u[i,j], v[i,j]]) # extract velocity vector
-                rot_vec = scale * np.dot(rot_mat, vec) #  rotate and scale
+                vec = np.array([u[i, j], v[i, j]])  # extract velocity vector
+                rot_vec = scale * np.dot(rot_mat, vec)  # rotate and scale
 
-                u[i,j] = rot_vec[0]
-                v[i,j] = rot_vec[1]
-
+                u[i, j] = rot_vec[0]
+                v[i, j] = rot_vec[1]
 
     return u, v
 
 
-def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'), param='slp', winter_only=False, lon180=False, fesom_output=False, scale=1):
-
+def mean_diff_two_periods(src, period1=('1979', '1999'), period2=('2000', '2018'), param='slp', winter_only=False, lon180=False, fesom_output=False, scale=1):
     '''
     anomaly_two_periods.py
 
@@ -107,16 +110,16 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
     # Handle different input cases for src_path
     if isinstance(src, str):
         # Open file
-        ds = xr.open_dataset(src)#.load()
+        ds = xr.open_dataset(src)  # .load()
 
     elif isinstance(src, list) | isinstance(src, np.ndarray):
-        ds = xr.open_mfdataset(src, combine='by_coords', chunks={'nod2': 1e4})#.load()
+        ds = xr.open_mfdataset(src, combine='by_coords', chunks={'nod2': 1e4})  # .load()
 
     elif isinstance(src, xr.DataArray):
-        ds = src.to_dataset()#.load()
+        ds = src.to_dataset()  # .load()
 
     elif isinstance(src, xr.Dataset):
-        ds = src#.load()
+        ds = src  # .load()
 
     # Apply cf conventions
     if not fesom_output:
@@ -128,7 +131,6 @@ def mean_diff_two_periods(src, period1=('1979','1999'), period2=('2000','2018'),
             ds = select_winter_month(ds)
         elif isinstance(winter_only, list):
             ds = select_winter_month(ds, month=winter_only)
-
 
     # Select two time periods
     ds_p1 = ds.sel(time=slice(period1[0], period1[1]))
@@ -187,36 +189,38 @@ def create_wind_anomaly_netCDF(ds, lon_range, lat_range, lon360=True, savepath=N
 
     u, v = pressure_to_geowind(slp, lon, lat, f='f-plane', f_central=75, slp=True)
 
-
     # Set all values outside range to 0
-    LON, LAT = np.meshgrid(lon,lat)
+    LON, LAT = np.meshgrid(lon, lat)
 
-    u_anom = np.where((LON >= lon_min) & (LON <= lon_max) & (LAT >= lat_min) & (LAT <= lat_max), u, 0)
-    v_anom = np.where((LON >= lon_min) & (LON <= lon_max) & (LAT >= lat_min) & (LAT <= lat_max), v, 0)
+    u_anom = np.where((LON >= lon_min) & (LON <= lon_max) &
+                      (LAT >= lat_min) & (LAT <= lat_max), u, 0)
+    v_anom = np.where((LON >= lon_min) & (LON <= lon_max) &
+                      (LAT >= lat_min) & (LAT <= lat_max), v, 0)
 
     ds_new = xr.Dataset({
-    'uanom': xr.DataArray(
-                data   = u_anom,   # enter data here
-                dims   = ['lat', 'lon'],
-                coords = {'lat': lat, 'lon': lon},
-                attrs  = {
-                    'units'     : 'm/s',
-                    'description': 'gesostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
-                    }
-                ),
-     'vanom': xr.DataArray(
-                data   = v_anom,   # enter data here
-                dims   = ['lat', 'lon'],
-                coords = {'lat': lat, 'lon': lon},
-                attrs  = {
-                    'units'     : 'm/s',
-                    'description': 'gesostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
-                    }
-                ),
+        'uanom': xr.DataArray(
+            data=u_anom,   # enter data here
+            dims=['lat', 'lon'],
+            coords={'lat': lat, 'lon': lon},
+            attrs={
+                'units': 'm/s',
+                'description': 'geostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
+            }
+        ),
+        'vanom': xr.DataArray(
+            data=v_anom,   # enter data here
+            dims=['lat', 'lon'],
+            coords={'lat': lat, 'lon': lon},
+            attrs={
+                'units': 'm/s',
+                'description': 'geostrophic wind anomaly from JRA55 slp difference 1979-1999, 2000-2018, Rotated by 30° and scaled by a factor of 0.7 (Protoshinsky and Johnson 1997)'
+            }
+        ),
     })
 
     if lon360:
-        ds_new.coords['lon'] = np.where(ds_new.lon.values < 0, ds_new.lon.values + 360, ds_new.lon.values)
+        ds_new.coords['lon'] = np.where(
+            ds_new.lon.values < 0, ds_new.lon.values + 360, ds_new.lon.values)
         ds_new = ds_new.sortby(ds_new.lon)
 
     # Add Time coordinate
