@@ -92,6 +92,29 @@ def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='light
         y_inline=True,
         zorder=20,
     )
+        ax.set_extent([0,80,68,85], crs=ccrs.PlateCarree())
+
+        gl.xlocator = mticker.FixedLocator(
+            [-10, 0, 10, 20, 30, 40, 50, 60, 70, 80],
+        )
+        gl.ylocator = mticker.FixedLocator(np.arange(70, 87.5, 2.5))
+        gl.xformatter = LONGITUDE_FORMATTER
+        gl.yformatter = LATITUDE_FORMATTER
+
+        
+   elif extent == "BS_centered_85":
+
+        gl = ax.gridlines(
+        crs=ccrs.PlateCarree(),
+        draw_labels=True,
+        linewidth=1,
+        color="gray",
+        alpha=0.5,
+        linestyle="--",
+        x_inline=True,
+        y_inline=True,
+        zorder=20,
+    )
         ax.set_extent([0,80,68,82.5], crs=ccrs.PlateCarree())
 
         gl.xlocator = mticker.FixedLocator(
