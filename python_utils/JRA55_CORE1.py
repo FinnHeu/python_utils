@@ -12,8 +12,11 @@ def Dec2MarMeanTransport(srcpath: str, newdates: tuple, Tmin=-5):
 
     # Shift by one month to allow groupby year (winter)
     newtime = pd.date_range(newdates[0], newdates[-1], freq='m')
+    
     if len(newtime) != len(ds.time):
         raise ValueError('The length of the time vectors does not match!')
+    
+    ds['time'] = newtime
 
     # Select winter month
     ds = select_winter_month(ds, month=[1,2,3,4])
