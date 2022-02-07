@@ -9,7 +9,6 @@ def Dec2MarMeanTransport(srcpath: str, newdates: tuple, Tmin=-5):
     '''
 
     ds = xr.open_dataset(srcpath)
-    ds = dataset_to_cfconvention(ds)
 
     # Shift by one month to allow groupby year (winter)
     newtime = pd.date_range(newdates[0], newdates[-1], freq='m')
