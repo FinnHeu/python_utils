@@ -170,3 +170,6 @@ def crop_fesom_to_region(src, mesh, dest, region=[0, 90, 50, 90]):
         ds.to_netcdf(dest[i])
 
     return inds
+
+
+def LoadAndUnrotateVelocity(data_path, )

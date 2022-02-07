@@ -1,8 +1,10 @@
 README.md
 setup.py
 python_utils/__init__.py
+python_utils/bs_anomalies.py
+python_utils/dataset_operations.py
 python_utils/plotting.py
-python_utils/various.py
+python_utils/statistics.py
 python_utils.egg-info/PKG-INFO
 python_utils.egg-info/SOURCES.txt
 python_utils.egg-info/dependency_links.txt
