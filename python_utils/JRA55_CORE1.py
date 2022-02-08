@@ -2,6 +2,7 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from tqdm.notebook import tqdm
 from eofs.xarray import Eof
 from .dataset_operations import select_winter_month, dataset_to_cfconvention
 
