@@ -1,8 +1,12 @@
 import xarray as xr
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+
 from eofs.xarray import Eof
-from .dataset_operations import select_winter_month, dataset_to_cfconvention
+from .dataset_operations import select_winter_month
+
 
 # Subfunctions
 def RestrictRegionTime(ds, extent, time1, time2):
@@ -64,7 +68,21 @@ def TimeShiftForWinterMean(ds, newdates):
 
     return ds
 
-def PlotPatternIndex(ds)
+def PlotPatternIndex(eof, pc, mode):
+    '''
+    Plot the results of the computation as map
+    '''
+
+    fig, ax = plt.subplots(1, 2, figsize=(20, 7))
+
+    # PC
+    ax[0].bar(pc.time, pc.isel(mode=mode))
+    # EOF
+    cb = ax[1].contourf(eof.lon, eof.lat, eof.isel(mode=mode)transpose(), cmap='RdBu_r')
+
+    plt.colorbar(cb, ax=ax)
+
+    return
 
 # Index
 def NAOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
@@ -83,6 +101,9 @@ def NAOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
+
+    # Plot
+    PlotPatternIndex(eofs, pcs, 0)
 
     return eofs.isel(mode=0), pcs.isel(mode=0)
 
@@ -106,6 +127,9 @@ def BOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '20
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
 
+    # Plot
+    PlotPatternIndex(eofs, pcs, 1)
+
     return eofs.isel(mode=1), pcs.isel(mode=1)
 
 def NAMindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
@@ -128,6 +152,9 @@ def NAMindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
 
+    # Plot
+    PlotPatternIndex(eofs, pcs, 0)
+
     return eofs.isel(mode=0), pcs.isel(mode=0)
 
 def ADindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
@@ -149,5 +176,8 @@ def ADindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '20
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
+
+    # Plot
+    PlotPatternIndex(eofs, pcs, 1)
 
     return eofs.isel(mode=1), pcs.isel(mode=1)
