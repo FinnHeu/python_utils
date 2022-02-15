@@ -1,0 +1,145 @@
+import xarray as xr
+import pandas as pd
+import numpy as np
+from eofs.xarray import Eof
+from .dataset_operations import select_winter_month, dataset_to_cfconvention
+
+# Subfunctions
+def RestrictRegionTime(ds, lon1, lon2, lat1, lat2, time1, time2):
+    '''
+    Cut data to region and time slice
+    '''
+
+    # -180:180°E
+    if any([l > 180 for l in ds.lon]):
+        ds['lon'] = ds.lon.where(ds.lon < 180, ds.lon - 360)
+        ds = ds.sortby(ds.lon)
+
+    # restrict region
+    ds = ds.sel(lon=slice(lon1, lon2),
+                lat=slice(lat1, lat2),
+                time=slice(time1,
+                           time2)
+                )
+
+    return ds
+
+def EofAreaWeighted(ds):
+    '''
+    Compute the area weighted EOF
+    '''
+
+    # select winter month
+    ds = select_winter_month(ds, month=[1, 2, 3, 4])
+
+    # Groupby year
+    ds = ds.groupby('time.year').mean()
+    ds = ds.rename({'year': 'time'})
+
+    # latitude weight
+    lat_weight = np.cos(ds.lat * np.pi / 180)
+
+    # transpose
+    ds = ds.transpose('time', 'lon', 'lat')
+
+    # EOF
+    solver = Eof(ds, weights=lat_weight)
+    eofs = solver.eofs(neofs=5, eofscaling=1)
+    pcs = solver.pcs(npcs=5, pcscaling=1)
+
+    return eofs, pcs
+
+def TimeShiftForWinterMean(ds, newdates):
+    '''
+    Shifts the time by one month forward to allow xarray groupby time.year method
+    This should be automated later
+    '''
+    # shift by one month to allow groupby year
+    newtime = pd.date_range(newdates[0], newdates[-1], freq='m')
+
+    if len(newtime) != len(ds.time):
+        raise ValueError('The length of the time vectors does not match!')
+
+    ds['time'] = newtime
+
+    return ds
+
+# Index
+def NAOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+    '''
+    Computes the NAO index for given monthly mean SLP data as first area weighted EOF within 90°E - 40°W, 20°N - 80°N
+    '''
+
+    # Open Files
+    ds = xr.open_dataset(src_path)[slpvar]
+
+    # Restrict region for EOF analysis
+    ds = RestrictRegionTime(ds, -90, 40, 20, 80, timeslice[0], timeslice[-1])
+
+    # Shift time for winter means
+    ds = TimeShiftForWinterMean(ds, newdates)
+
+    # Apply area weighted EOF
+    eofs, pcs = EofAreaWeighted(ds)
+
+    return eofs.isel(mode=0), pcs.isel(mode=0)
+
+def BOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+    '''
+    Computes the NAO index for given monthly mean SLP data as first area weighted EOF within 90°E - 40°W, 20°N - 80°N
+    https://doi.org/10.1002/grl.50551
+    '''
+
+    # Open Files
+    ds = xr.open_dataset(src_path)[slpvar]
+
+    # Restrict region for EOF analysis
+    ds = RestrictRegionTime(ds, -90, 90, 30, 90, timeslice[0], timeslice[-1])
+
+    # Shift time for winter means
+    ds = TimeShiftForWinterMean(ds, newdates)
+
+    # Apply area weighted EOF
+    eofs, pcs = EofAreaWeighted(ds)
+
+    return eofs.isel(mode=1), pcs.isel(mode=1)
+
+def NAMindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+    '''
+    Computes the NAM index for given monthly mean SLP data as first area weighted EOF north of 20°N
+    https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/ao.loading.shtml
+    '''
+
+    # Open Files
+    ds = xr.open_dataset(src_path)[slpvar]
+
+    # Restrict region for EOF analysis
+    ds = RestrictRegionTime(ds, -180, 180, 20, 90, timeslice[0], timeslice[-1])
+
+    # Shift time for winter means
+    ds = TimeShiftForWinterMean(ds, newdates)
+
+    # Apply area weighted EOF
+    eofs, pcs = EofAreaWeighted(ds)
+
+    return eofs.isel(mode=0), pcs.isel(mode=0)
+
+def ADindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+    '''
+    Computes the NAO index for given monthly mean SLP data as second area weighted EOF north of 70°N°
+    https://doi.org/10.1175/JCLI3619.1
+    '''
+
+    # Open Files
+    ds = xr.open_dataset(src_path)[slpvar]
+
+    # Restrict region for EOF analysis
+    ds = RestrictRegionTime(ds, -180, 180, 70, 90, timeslice[0], timeslice[-1])
+
+    # Shift time for winter means
+    ds = TimeShiftForWinterMean(ds, newdates)
+
+    # Apply area weighted EOF
+    eofs, pcs = EofAreaWeighted(ds)
+
+    return eofs.isel(mode=1), pcs.isel(mode=1)
