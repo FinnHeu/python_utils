@@ -78,7 +78,7 @@ def PlotPatternIndex(eof, pc, mode):
     # PC
     ax[0].bar(pc.time, pc.isel(mode=mode))
     # EOF
-    cb = ax[1].contourf(eof.lon, eof.lat, eof.isel(mode=mode)transpose(), cmap='RdBu_r')
+    cb = ax[1].contourf(eof.lon, eof.lat, eof.isel(mode=mode).transpose(), cmap='RdBu_r')
 
     plt.colorbar(cb, ax=ax)
 
