@@ -8,8 +8,8 @@ from eofs.xarray import Eof
 from .dataset_operations import select_winter_month
 
 
-# Subfunctions
-def RestrictRegionTime(ds, extent, time1, time2):
+# Helpers
+def RestrictRegionTime(ds: xr.Dataset, extent: tuple, time1: str, time2: str):
     '''
     Cut data to region and time slice
     '''
@@ -28,7 +28,7 @@ def RestrictRegionTime(ds, extent, time1, time2):
 
     return ds
 
-def EofAreaWeighted(ds):
+def EofAreaWeighted(ds: xr.Dataset):
     '''
     Compute the area weighted EOF
     '''
@@ -53,18 +53,52 @@ def EofAreaWeighted(ds):
 
     return eofs, pcs
 
-def TimeShiftForWinterMean(ds, newdates):
+def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list):
     '''
-    Shifts the time by one month forward to allow xarray groupby time.year method
-    This should be automated later
+    Shifts time vector of monthly data by n month to groupby across winters
     '''
-    # shift by one month to allow groupby year
-    newtime = pd.date_range(newdates[0], newdates[-1], freq='m')
+    if n > 11:
+        raise ValueError('n must be < 12')
 
-    if len(newtime) != len(ds.time):
-        raise ValueError('The length of the time vectors does not match!')
+    # shift first timestep
+    year, month, day = str(ds.time[0].values)[:4], str(ds.time[0].values)[5:7], '15'
 
-    ds['time'] = newtime
+    # add n to current month
+    new_month = int(month) + n
+    new_year = int(year)
+
+    if new_month > 12:
+        new_month = new_month - 12
+        new_year = int(year) + 1
+
+    start_time = str(new_year) + '-' + str(new_month) + '-' + day
+
+    # shift last timestep (by n+2 as pd.date_range ignores last timestep)
+    year, month, day = str(ds.time[-1].values)[:4], str(ds.time[-1].values)[5:7], '15'
+
+    # add n to current month
+    new_month = int(month) + n + 1
+    new_year = int(year)
+
+    if new_month > 12:
+        new_month = new_month - 12
+        new_year = int(year) + 1
+
+    end_time = str(new_year) + '-' + str(new_month) + '-' + day
+
+    new_time = pd.date_range(start_time, end_time, freq='m')
+
+    if len(new_time) != len(ds.time):
+        raise ValueError('Time vectors are of unequal length')
+
+    # Apply new time to dataset
+    ds['time'] = new_time
+
+    # Select chosen month only
+    ds = select_winter_month(ds, month=winter_month)
+
+    # Compute the annual mean
+    ds = ds.groupby('time.year')
 
     return ds
 
@@ -96,8 +130,8 @@ def NAOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2
     # Restrict region for EOF analysis
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
-    # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, newdates)
+    # Shift time and compute winter means
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1,2,3,4])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
@@ -122,7 +156,7 @@ def BOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '20
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, newdates)
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1,2,3,4])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
@@ -147,7 +181,7 @@ def NAMindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, newdates)
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1,2,3,4])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
@@ -172,7 +206,7 @@ def ADindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '20
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, newdates)
+    ds = TimeShiftForWinterMean(ds, n=3, winter_month=[1, 2, 3, 4, 5, 6])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
