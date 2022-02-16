@@ -211,7 +211,7 @@ def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     https://doi.org/10.1175/JCLI3619.1
     '''
 
-    extent = (-180, 180, 70, 90)
+    extent = (-180, 180, 40, 90)
 
     # Open Files
     ds = xr.open_dataset(src_path)[slpvar]
@@ -220,7 +220,7 @@ def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, n=3, winter_month=[1, 2, 3, 4, 5, 6], groupby=False)
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3, 4])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
