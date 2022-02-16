@@ -29,6 +29,7 @@ def RestrictRegionTime(ds: xr.Dataset, extent: tuple, time1: str, time2: str):
 
     return ds
 
+
 def EofAreaWeighted(ds: xr.Dataset):
     '''
     Compute the area weighted EOF
@@ -47,10 +48,12 @@ def EofAreaWeighted(ds: xr.Dataset):
 
     return eofs, pcs
 
-def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list):
-    '''
+
+def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list, groupby=True):
+    """
     Shifts time vector of monthly data by n month to groupby across winters
-    '''
+    """
+
     if n > 11:
         raise ValueError('n must be < 12')
 
@@ -92,10 +95,12 @@ def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list):
     ds = select_winter_month(ds, month=winter_month, cfconventions=False)
 
     # Compute the annual mean
-    ds = ds.groupby('time.year').mean()
-    ds = ds.rename({'year': 'time'})
+    if groupby:
+        ds = ds.groupby('time.year').mean()
+        ds = ds.rename({'year': 'time'})
 
     return ds
+
 
 def PlotPatternIndex(eof, pc, extent):
     '''
@@ -106,21 +111,23 @@ def PlotPatternIndex(eof, pc, extent):
 
     crs = ccrs.PlateCarree(central_longitude=mid_lon)
 
-    fig = plt.figure(figsize=(20,10))
+    fig = plt.figure(figsize=(20, 10))
     gs = GridSpec(1, 3)
 
     ax1 = fig.add_subplot(gs[0], projection=crs)
     ax2 = fig.add_subplot(gs[1:])
 
-    ax2.set_ylim((min_lat-10, 90))
+    ax2.set_ylim((min_lat - 10, 90))
 
     # PC
     ax2.bar(pc.time, pc)
     # EOF
-    cb = ax1.contourf(eof.lon, eof.lat, eof.transpose() / pc.std(), cmap='RdBu_r', transform=ccrs.PlateCarree(), levels=np.arange(-3, 3.2, .2))
+    cb = ax1.contourf(eof.lon, eof.lat, eof.transpose() / pc.std(), cmap='RdBu_r', transform=ccrs.PlateCarree(),
+                      levels=np.arange(-3, 3.2, .2))
     plt.colorbar(cb, ax=ax1)
 
     return
+
 
 # Index
 def NAOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
@@ -135,7 +142,7 @@ def NAOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time and compute winter means
-    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1,2,3,4])
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3, 4])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
@@ -144,6 +151,7 @@ def NAOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     eofs, pcs = eofs.isel(mode=0), pcs.isel(mode=0)
 
     return eofs, pcs
+
 
 def BOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
@@ -160,7 +168,7 @@ def BOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1,2,3,4])
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3, 4])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
@@ -169,6 +177,7 @@ def BOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     eofs, pcs = eofs.isel(mode=1), pcs.isel(mode=1)
 
     return eofs, pcs
+
 
 def NAMindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
@@ -185,7 +194,7 @@ def NAMindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1,2,3,4])
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3, 4])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
@@ -194,6 +203,7 @@ def NAMindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     eofs, pcs = eofs.isel(mode=0), pcs.isel(mode=0)
 
     return eofs, pcs
+
 
 def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
@@ -210,7 +220,7 @@ def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, n=3, winter_month=[1, 2, 3, 4, 5, 6])
+    ds = TimeShiftForWinterMean(ds, n=3, winter_month=[1, 2, 3, 4, 5, 6], groupby=False)
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
