@@ -35,16 +35,28 @@ def EofAreaWeighted(ds: xr.Dataset):
     Compute the area weighted EOF
     '''
 
-    # latitude weight
-    lat_weight = np.cos(ds.lat * np.pi / 180)
-
+    # Remove the time mean
+    ds = ds - ds.mean(dim='time')
     # transpose
     ds = ds.transpose('time', 'lon', 'lat')
 
+    # Create an EOF solver to do the EOF analysis. Square-root of cosine of
+    # latitude weights are applied before the computation of EOFs.
+    coslat = np.cos(np.deg2rad(ds['latitude'].values)).clip(0., 1.)
+    wgts = np.sqrt(coslat)[..., np.newaxis]
+    solver = Eof(ds, weights=wgts)
+
+
+
+    # Retrieve the leading EOF, expressed as the covariance between the leading PC
+    # time series and the input SLP anomalies at each grid point.
+    eofs = solver.eofsAsCovariance(neofs=2)
+    pcs = solver.pcs(neofs=2)
+
     # EOF
-    solver = Eof(ds, weights=lat_weight)
-    eofs = solver.eofs(neofs=5, eofscaling=1)
-    pcs = solver.pcs(npcs=5, pcscaling=1)
+    #solver = Eof(ds, weights=lat_weight)
+    #eofs = solver.eofs(neofs=5, eofscaling=1)
+    #pcs = solver.pcs(npcs=5, pcscaling=1)
 
     return eofs, pcs
 
@@ -220,7 +232,7 @@ def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3, 4])
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
