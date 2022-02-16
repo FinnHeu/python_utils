@@ -2,6 +2,7 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import cartopy.crs as ccrs
 
 from eofs.xarray import Eof
@@ -98,28 +99,37 @@ def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list):
     ds = select_winter_month(ds, month=winter_month)
 
     # Compute the annual mean
-    ds = ds.groupby('time.year')
+    ds = ds.groupby('time.year').mean()
 
     return ds
 
-def PlotPatternIndex(eof, pc, mode):
+def PlotPatternIndex(eof, pc, extent):
     '''
     Plot the results of the computation as map
     '''
+    mid_lon = extent[0] + (extent[1] - extent[0]) / 2
+    min_lat = extent[2]
 
-    fig, ax = plt.subplots(1, 2, figsize=(20, 7))
+    crs = ccrs.PlateCarree(central_longitude=mid_lon)
+
+    fig = plt.figure()
+    gs = GridSpec(1, 2)
+
+    ax1 = fig.add_subplot(gs[0], projection=crs)
+    ax2 = fig.add_subplot(gs[1])
+
+    ax2.set_ylim((min_lat-10, 90))
 
     # PC
-    ax[0].bar(pc.time, pc.isel(mode=mode))
+    ax2.bar(pc.time, pc)
     # EOF
-    cb = ax[1].contourf(eof.lon, eof.lat, eof.isel(mode=mode).transpose(), cmap='RdBu_r')
-
-    plt.colorbar(cb, ax=ax)
+    cb = ax1.contourf(eof.lon, eof.lat, eof.transpose(), cmap='RdBu_r')
+    plt.colorbar(cb, ax=ax1)
 
     return
 
 # Index
-def NAOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+def NAOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
     Computes the NAO index for given monthly mean SLP data as first area weighted EOF within 90°E - 40°W, 20°N - 80°N
     '''
@@ -136,12 +146,15 @@ def NAOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
 
+    # Select EOF mode
+    eofs, pcs = eofs.isel(mode=0), pcs.isel(mode=0)
+
     # Plot
-    PlotPatternIndex(eofs, pcs, 0)
+    PlotPatternIndex(eofs, pcs)
 
-    return eofs.isel(mode=0), pcs.isel(mode=0)
+    return eofs, pcs
 
-def BOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+def BOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
     Computes the NAO index for given monthly mean SLP data as first area weighted EOF within 90°E - 40°W, 20°N - 80°N
     https://doi.org/10.1002/grl.50551
@@ -161,12 +174,15 @@ def BOindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '20
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
 
+    # Select EOF mode
+    eofs, pcs = eofs.isel(mode=1), pcs.isel(mode=1)
+
     # Plot
-    PlotPatternIndex(eofs, pcs, 1)
+    PlotPatternIndex(eofs, pcs)
 
-    return eofs.isel(mode=1), pcs.isel(mode=1)
+    return eofs, pcs
 
-def NAMindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+def NAMindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
     Computes the NAM index for given monthly mean SLP data as first area weighted EOF north of 20°N
     https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/ao.loading.shtml
@@ -186,12 +202,15 @@ def NAMindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
 
+    # Select EOF mode
+    eofs, pcs = eofs.isel(mode=0), pcs.isel(mode=0)
+
     # Plot
-    PlotPatternIndex(eofs, pcs, 0)
+    PlotPatternIndex(eofs, pcs)
 
-    return eofs.isel(mode=0), pcs.isel(mode=0)
+    return eofs, pcs
 
-def ADindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '2020')):
+def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
     Computes the NAO index for given monthly mean SLP data as second area weighted EOF north of 70°N°
     https://doi.org/10.1175/JCLI3619.1
@@ -211,7 +230,10 @@ def ADindex(src_path: str, newdates: tuple, slpvar='psl', timeslice=('1960', '20
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
 
-    # Plot
-    PlotPatternIndex(eofs, pcs, 1)
+    # Select EOF mode
+    eofs, pcs = eofs.isel(mode=1), pcs.isel(mode=1)
 
-    return eofs.isel(mode=1), pcs.isel(mode=1)
+    # Plot
+    PlotPatternIndex(eofs, pcs)
+
+    return eofs, pcs
