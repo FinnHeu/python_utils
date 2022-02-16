@@ -34,13 +34,6 @@ def EofAreaWeighted(ds: xr.Dataset):
     Compute the area weighted EOF
     '''
 
-    # select winter month
-    ds = select_winter_month(ds, month=[1, 2, 3, 4])
-
-    # Groupby year
-    ds = ds.groupby('time.year').mean()
-    ds = ds.rename({'year': 'time'})
-
     # latitude weight
     lat_weight = np.cos(ds.lat * np.pi / 180)
 
@@ -100,6 +93,7 @@ def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list):
 
     # Compute the annual mean
     ds = ds.groupby('time.year').mean()
+    ds = ds.rename({'year': 'time'})
 
     return ds
 
