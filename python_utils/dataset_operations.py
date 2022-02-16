@@ -91,7 +91,7 @@ def dataset_to_cfconvention(ds, longitude='lon', latitude='lat', time='time', sl
     return ds
 
 
-def select_winter_month(ds, month=[12, 1, 2, 3, 4, 5], mean=False):
+def select_winter_month(ds, month=[12, 1, 2, 3, 4, 5], mean=False, cfconventions=True):
     '''
     select_winter_month.py
 
@@ -109,8 +109,9 @@ def select_winter_month(ds, month=[12, 1, 2, 3, 4, 5], mean=False):
     '''
 
     # Apply cf conventions if nesseccary
-    if not 'time' in list(ds.coords):
-        ds = dataset_to_cfconvention(ds)
+    if cfconventions:
+        if not 'time' in list(ds.coords):
+            ds = dataset_to_cfconvention(ds)
 
     groups = ds.groupby('time.month').groups
 

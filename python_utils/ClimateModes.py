@@ -96,7 +96,7 @@ def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list):
     ds['time'] = new_time
 
     # Select chosen month only
-    ds = select_winter_month(ds, month=winter_month)
+    ds = select_winter_month(ds, month=winter_month, cfconventions=False)
 
     # Compute the annual mean
     ds = ds.groupby('time.year').mean()
