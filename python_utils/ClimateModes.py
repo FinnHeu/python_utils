@@ -106,18 +106,18 @@ def PlotPatternIndex(eof, pc, extent):
 
     crs = ccrs.PlateCarree(central_longitude=mid_lon)
 
-    fig = plt.figure()
-    gs = GridSpec(1, 2)
+    fig = plt.figure(figsize=(20,10))
+    gs = GridSpec(1, 3)
 
     ax1 = fig.add_subplot(gs[0], projection=crs)
-    ax2 = fig.add_subplot(gs[1])
+    ax2 = fig.add_subplot(gs[1:])
 
     ax2.set_ylim((min_lat-10, 90))
 
     # PC
     ax2.bar(pc.time, pc)
     # EOF
-    cb = ax1.contourf(eof.lon, eof.lat, eof.transpose(), cmap='RdBu_r')
+    cb = ax1.contourf(eof.lon, eof.lat, eof.transpose() / pc.std(), cmap='RdBu_r', transform=ccrs.PlateCarree(), levels=np.arange(-3, 3.2, .2))
     plt.colorbar(cb, ax=ax1)
 
     return
