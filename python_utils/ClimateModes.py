@@ -143,9 +143,6 @@ def NAOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     # Select EOF mode
     eofs, pcs = eofs.isel(mode=0), pcs.isel(mode=0)
 
-    # Plot
-    PlotPatternIndex(eofs, pcs, extent)
-
     return eofs, pcs
 
 def BOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
@@ -170,9 +167,6 @@ def BOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
 
     # Select EOF mode
     eofs, pcs = eofs.isel(mode=1), pcs.isel(mode=1)
-
-    # Plot
-    PlotPatternIndex(eofs, pcs, extent)
 
     return eofs, pcs
 
@@ -199,9 +193,6 @@ def NAMindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     # Select EOF mode
     eofs, pcs = eofs.isel(mode=0), pcs.isel(mode=0)
 
-    # Plot
-    PlotPatternIndex(eofs, pcs, extent)
-
     return eofs, pcs
 
 def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
@@ -226,8 +217,5 @@ def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
 
     # Select EOF mode
     eofs, pcs = eofs.isel(mode=1), pcs.isel(mode=1)
-
-    # Plot
-    PlotPatternIndex(eofs, pcs, extent)
 
     return eofs, pcs
