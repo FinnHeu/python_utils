@@ -10,6 +10,7 @@ from .dataset_operations import select_winter_month
 
 
 # Helpers
+# Helpers
 def RestrictRegionTime(ds: xr.Dataset, extent: tuple, time1: str, time2: str):
     '''
     Cut data to region and time slice
@@ -42,21 +43,19 @@ def EofAreaWeighted(ds: xr.Dataset):
 
     # Create an EOF solver to do the EOF analysis. Square-root of cosine of
     # latitude weights are applied before the computation of EOFs.
-    coslat = np.cos(np.deg2rad(ds['latitude'].values)).clip(0., 1.)
-    wgts = np.sqrt(coslat)[..., np.newaxis]
+    coslat = np.cos(np.deg2rad(ds.lat.values))  # .clip(0., 1.)
+    wgts = np.sqrt(coslat)[np.newaxis, np.newaxis, :]
     solver = Eof(ds, weights=wgts)
-
-
 
     # Retrieve the leading EOF, expressed as the covariance between the leading PC
     # time series and the input SLP anomalies at each grid point.
-    eofs = solver.eofsAsCovariance(neofs=2)
-    pcs = solver.pcs(neofs=2)
+    eofs = solver.eofs(neofs=2)
+    pcs = solver.pcs(npcs=2)
 
     # EOF
-    #solver = Eof(ds, weights=lat_weight)
-    #eofs = solver.eofs(neofs=5, eofscaling=1)
-    #pcs = solver.pcs(npcs=5, pcscaling=1)
+    # solver = Eof(ds, weights=lat_weight)
+    # eofs = solver.eofs(neofs=5, eofscaling=1)
+    # pcs = solver.pcs(npcs=5, pcscaling=1)
 
     return eofs, pcs
 
@@ -113,34 +112,7 @@ def TimeShiftForWinterMean(ds: xr.Dataset, n: int, winter_month: list, groupby=T
 
     return ds
 
-
-def PlotPatternIndex(eof, pc, extent):
-    '''
-    Plot the results of the computation as map
-    '''
-    mid_lon = extent[0] + (extent[1] - extent[0]) / 2
-    min_lat = extent[2]
-
-    crs = ccrs.PlateCarree(central_longitude=mid_lon)
-
-    fig = plt.figure(figsize=(20, 10))
-    gs = GridSpec(1, 3)
-
-    ax1 = fig.add_subplot(gs[0], projection=crs)
-    ax2 = fig.add_subplot(gs[1:])
-
-    ax2.set_ylim((min_lat - 10, 90))
-
-    # PC
-    ax2.bar(pc.time, pc)
-    # EOF
-    cb = ax1.contourf(eof.lon, eof.lat, eof.transpose() / pc.std(), cmap='RdBu_r', transform=ccrs.PlateCarree(),
-                      levels=np.arange(-3, 3.2, .2))
-    plt.colorbar(cb, ax=ax1)
-
-    return
-
-
+# Index
 # Index
 def NAOindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     '''
@@ -206,7 +178,7 @@ def NAMindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     ds = RestrictRegionTime(ds, extent, timeslice[0], timeslice[-1])
 
     # Shift time for winter means
-    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3, 4])
+    ds = TimeShiftForWinterMean(ds, n=1, winter_month=[1, 2, 3])
 
     # Apply area weighted EOF
     eofs, pcs = EofAreaWeighted(ds)
@@ -223,7 +195,7 @@ def ADindex(src_path: str, slpvar='psl', timeslice=('1960', '2020')):
     https://doi.org/10.1175/JCLI3619.1
     '''
 
-    extent = (-180, 180, 40, 90)
+    extent = (-180, 180, 70, 90)
 
     # Open Files
     ds = xr.open_dataset(src_path)[slpvar]
