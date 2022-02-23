@@ -97,7 +97,7 @@ def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='light
         gl.xlocator = mticker.FixedLocator(
             [-10, 0, 10, 20, 30, 40, 50, 60, 70, 80],
         )
-        gl.ylocator = mticker.FixedLocator(np.arange(70, 87.5, 2.5))
+        gl.ylocator = mticker.FixedLocator([75, 77.5])
         gl.xformatter = LONGITUDE_FORMATTER
         gl.yformatter = LATITUDE_FORMATTER
 
