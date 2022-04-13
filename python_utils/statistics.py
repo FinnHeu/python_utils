@@ -1,4 +1,6 @@
 # Statistical tools
+import numpy as np
+from scipy.stats import linregress
 
 def linregress_ci(x: np.ndarray, y: np.ndarray, n=5000, xn=100, conf=95):
     '''
