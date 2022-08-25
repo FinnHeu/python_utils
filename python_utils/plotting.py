@@ -199,3 +199,20 @@ def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='light
         gl.ylabels_right = False
 
     return ax
+
+def remove_axlines(ax, top=False, bottom=False, right=False, left=False):
+    ''' Removes the frame from the axis'''
+
+    ax.spines['top'].set_visible(top)
+    ax.spines['right'].set_visible(right)
+    ax.spines['bottom'].set_visible(bottom)
+    ax.spines['left'].set_visible(left)
+
+def fesom4cartopy(data_to_plot, box_mesh, mesh):
+    ''' Cut fesom data to box for plotting with tricontour'''
+
+    elem_no_nan, no_nan_triangles = pf.cut_region(mesh, box_mesh)
+    no_cyclic_elem2 = pf.get_no_cyclic(mesh, elem_no_nan)
+    elem_to_plot = elem_no_nan[no_cyclic_elem2]
+
+    return data_to_plot, elem_to_plot

@@ -6,3 +6,6 @@ from .bs_anomalies import *
 from .JRA55_CORE1 import *
 from .ClimateModes import NAMindex, NAOindex, BOindex, ADindex
 from .statistics import *
+from .ice import *
+from .BarentsSeaAtlanticWater import *
+

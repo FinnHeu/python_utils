@@ -1,5 +1,7 @@
 README.md
 setup.py
+python_utils/ClimateModes.py
+python_utils/JRA55_CORE1.py
 python_utils/__init__.py
 python_utils/bs_anomalies.py
 python_utils/dataset_operations.py
