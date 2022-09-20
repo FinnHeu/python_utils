@@ -7,6 +7,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import numpy as np
+import pyfesom2 as pf
 
 
 def plot_background(ax, extent="BS", land=True, coastline=True, landcolor='lightgrey', tick_labels=True):
